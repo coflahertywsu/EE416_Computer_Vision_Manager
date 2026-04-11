@@ -1,0 +1,6 @@
+class JetsonNetwork
+{
+    SLOT(void onInitialConnect(const QString &ip));
+    SLOT(void onDesktopHeartbeat(quint8 val));
+    SIGNAL(jetsonHeartbeat(quint8 val));
+}

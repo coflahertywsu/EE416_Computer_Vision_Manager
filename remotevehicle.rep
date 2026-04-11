@@ -1,0 +1,5 @@
+class RemoteVehicle
+{
+    SLOT(void onGamepadUpdate(quint8 buttonA, quint8 leftAxisX, quint8 leftAxisY, quint8 heartbeat));
+    SIGNAL(errorOccured(QString errorMessage));
+}

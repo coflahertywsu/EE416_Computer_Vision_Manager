@@ -1,0 +1,6 @@
+class RemotePipeline
+{
+    SLOT(void start());
+    SLOT(void stop());
+    SIGNAL(busMessageSignal(QString error, QString debug, bool eos));
+}
