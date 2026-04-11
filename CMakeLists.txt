@@ -100,3 +100,5 @@ if(QT_VERSION_MAJOR EQUAL 6)
     qt_import_qml_plugins(ComputerVisionManager)
     qt_finalize_executable(ComputerVisionManager)
 endif()
+
+# Testing Git and Github
