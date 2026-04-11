@@ -32,20 +32,12 @@ set(PROJECT_SOURCES
         qml.qrc
         remotepipeline.rep
         remotevehicle.rep
-        jetsonnetwork.rep
-        # testinterface.rep
+        remotenetwork.rep
 )
-
-# qt5_generate_repc(PROJECT_SOURCES
-#     remotepipeline.rep
-#     remotevehicle.rep
-#     # testinterface.rep
-#     REPLICA
-# )
 
 qt5_generate_repc(PROJECT_SOURCES remotepipeline.rep REPLICA)
 qt5_generate_repc(PROJECT_SOURCES remotevehicle.rep REPLICA)
-qt5_generate_repc(PROJECT_SOURCES jetsonnetwork.rep REPLICA)
+qt5_generate_repc(PROJECT_SOURCES remotenetwork.rep REPLICA)
 
 link_directories(${GSTREAMER_LIBRARY_DIRS})
 
@@ -65,10 +57,7 @@ add_executable(ComputerVisionManager
 
     remotepipeline.rep
     remotevehicle.rep
-    # remotenetworking.rep
-    # remotenetwork.rep
-    jetsonnetwork.rep
-    # testinterface.rep
+    remotenetwork.rep
 )
 
 
@@ -79,7 +68,6 @@ target_link_libraries(ComputerVisionManager
     Qt${QT_VERSION_MAJOR}::RemoteObjects
     ${GSTREAMER_LIBRARIES}
 )
-
 
 set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.ComputerVisionManager)
 

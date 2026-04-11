@@ -137,7 +137,7 @@ QRemoteObjectNode *Network::initializeRemoteObjects()
         return nullptr;
     }
 
-    m_jetsonNetwork = m_remoteObjectNode->acquire<JetsonNetworkReplica>("JetsonNetwork");
+    m_jetsonNetwork = m_remoteObjectNode->acquire<RemoteNetworkReplica>("RemoteNetwork");
 
     if (!m_jetsonNetwork)
     {
@@ -157,9 +157,9 @@ QRemoteObjectNode *Network::initializeRemoteObjects()
         qDebug() << "Network: Replica connected";
     }
 
-    connect(this, &Network::initialConnect, m_jetsonNetwork, &JetsonNetworkReplica::onInitialConnect);
-    connect(this, &Network::desktopHeartbeat, m_jetsonNetwork, &JetsonNetworkReplica::onDesktopHeartbeat);
-    connect(m_jetsonNetwork, &JetsonNetworkReplica::jetsonHeartbeat, this, &Network::onJetsonHeartbeat);
+    connect(this, &Network::initialConnect, m_jetsonNetwork, &RemoteNetworkReplica::onInitialConnect);
+    connect(this, &Network::desktopHeartbeat, m_jetsonNetwork, &RemoteNetworkReplica::onDesktopHeartbeat);
+    connect(m_jetsonNetwork, &RemoteNetworkReplica::jetsonHeartbeat, this, &Network::onJetsonHeartbeat);
 
     m_connection = true;
     emit initialConnect(m_desktopIp.toString());

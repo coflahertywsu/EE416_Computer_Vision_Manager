@@ -9,7 +9,7 @@
 #include <QNetworkInterface>
 #include <QRemoteObjectNode>
 #include <QSharedPointer>
-#include "rep_jetsonnetwork_replica.h"
+#include "rep_remotenetwork_replica.h"
 
 #define TCP_PORT                65214
 #define SUBNET_MASK             "255.255.255.0"         //May need to switch to /16 for bigger network
@@ -57,7 +57,7 @@ private:
     int m_missedConsecutiveBeats = 0;
     bool m_connection = false;
     QRemoteObjectNode *m_remoteObjectNode = nullptr;
-    JetsonNetworkReplica *m_jetsonNetwork = nullptr;
+    RemoteNetworkReplica *m_jetsonNetwork = nullptr;
 };
 
 #endif // Network_H
