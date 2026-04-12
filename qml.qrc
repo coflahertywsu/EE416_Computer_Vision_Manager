@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
+        <file>LiveViewerPage.qml</file>
+        <file>HomePage.qml</file>
     </qresource>
 </RCC>

@@ -69,46 +69,16 @@ int main(int argc, char *argv[])
          return -1;
     }
 
-
-
-    // Create thread and workers for gamepad (xBox controller) and vehicle
-    // QThread *controlThread = new QThread;
-
-    // ControlWorker *controlWorker = new ControlWorker(videoController.videoPipeline());
-
-    // controlWorker->moveToThread(controlThread);
-    // QObject::connect(controlThread, &QThread::started, controlWorker, &ControlWorker::initialize);
-    // QObject::connect(controlThread, &QThread::finished, controlWorker, &QObject::deleteLater);
-
-    // controlThread->start();
-
-
-    // // Create remote app controller
-    // RemoteAppController remoteAppController;
-
-    // Start remote TCP server that handles
-
     // Create and load QML engine
     QQmlApplicationEngine engine;
-    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
-    if (engine.rootObjects().isEmpty())
-        return -1;
 
     // Pass reference of remoteAppController to QML front end
     engine.rootContext()->setContextProperty("remotePipeline", remotePipeline);
+    engine.rootContext()->setContextProperty("videoController", &videoController);
 
-    // Get root window and QML video item
-    QQuickWindow *window = qobject_cast<QQuickWindow *>(engine.rootObjects().first());
-
-    QQuickItem *videoItem = window->findChild<QQuickItem *>("videoItem");
-
-    // Give the controller access only to what it needs
-    videoController.setVideoItem(videoItem);
-
-    // Start playing when the scene graph is ready
-    window->scheduleRenderJob(
-        new VideoSyncStart(videoController.pipelineHandle()),
-        QQuickWindow::BeforeSynchronizingStage);
+    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
+    if (engine.rootObjects().isEmpty())
+        return -1;
 
     return app.exec();
 }

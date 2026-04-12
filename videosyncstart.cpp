@@ -13,6 +13,8 @@ VideoSyncStart::~VideoSyncStart()
 
 void VideoSyncStart::run()
 {
+    qDebug() << "VideoSyncStart::run called";
+
     if (m_pipeline)
         gst_element_set_state(m_pipeline, GST_STATE_PLAYING);
 }

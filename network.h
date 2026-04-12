@@ -12,7 +12,7 @@
 #include "rep_remotenetwork_replica.h"
 
 #define TCP_PORT                65214
-#define SUBNET_MASK             "255.255.255.0"         //May need to switch to /16 for bigger network
+#define SUBNET_MASK             "255.255.255.0"         //May need to switch to /16 for bigger network (which may also accomodate smaller network most of the time)
 #define DESKTOP_HEARBEAT_MSEC   500
 #define DEFAULT_CONNECT_TIMEOUT 15000
 #define MISSED_BEATS_ALLOWED    4

@@ -3,6 +3,7 @@
 
 #include <QRunnable>
 #include <gst/gst.h>
+#include <QDebug>
 
 class VideoSyncStart : public QRunnable
 {
