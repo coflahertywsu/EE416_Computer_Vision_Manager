@@ -58,6 +58,8 @@ add_executable(ComputerVisionManager
     remotepipeline.rep
     remotevehicle.rep
     remotenetwork.rep
+
+    dirtransfer.h dirtransfer.cpp
 )
 
 

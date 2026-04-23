@@ -3,5 +3,7 @@
         <file>main.qml</file>
         <file>LiveViewerPage.qml</file>
         <file>HomePage.qml</file>
+        <file>UploadModelPage.qml</file>
+        <file>CardButton.qml</file>
     </qresource>
 </RCC>

@@ -7,6 +7,7 @@
 #include <QSharedPointer>
 #include <QDebug>
 #include "network.h"
+#include "dirtransfer.h"
 #include "gamepadhandler.h"
 #include "videocontroller.h"
 #include "controlworker.h"
@@ -69,12 +70,15 @@ int main(int argc, char *argv[])
          return -1;
     }
 
+    DirTransfer dirTransfer(m_network);
+
     // Create and load QML engine
     QQmlApplicationEngine engine;
 
     // Pass reference of remoteAppController to QML front end
     engine.rootContext()->setContextProperty("remotePipeline", remotePipeline);
     engine.rootContext()->setContextProperty("videoController", &videoController);
+    engine.rootContext()->setContextProperty("dirTransfer", &dirTransfer);
 
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
