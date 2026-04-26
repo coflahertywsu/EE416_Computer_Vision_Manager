@@ -1,6 +1,6 @@
 import QtQuick 2.4
 import QtQuick.Controls 2.12
-import QtQuick.Dialogs 1.3
+import QtQuick.Dialogs 1.3 as QtDialogs
 
 Item {
     id: uploadModelPage
@@ -27,83 +27,37 @@ Item {
         color: "white"
     }
 
+    // Controls (Buttons and Combobox)
     Column {
         spacing: 40
         anchors.centerIn: parent
 
-        Row {
-            spacing: 20
+        Column {
+            spacing: 10
 
-            ComboBox {
-                id: modelComboBox
-                width: 800
-                height: 120
-                padding: 20
-                model: dirTransfer.localRepoEntryList
-
-                background: Rectangle {
-                    radius: 20
-                    color: "#404040"
-                    border.color: "#4A90E2"
-                    border.width: 2
-                }
-
-                contentItem: Text {
-                    text: modelComboBox.displayText
-                    color: "white"
-                    font.pixelSize: 30
-                    verticalAlignment: Text.AlignVCenter
-                    // leftPadding: 20
-                }
-
-                delegate: ItemDelegate {
-                    width: modelComboBox.width
-                    height: 60
-                    text: modelData
-                    highlighted: modelComboBox.highlightedIndex === index
-
-                    background: Rectangle {
-                        color: highlighted ? "white" : "#303030"
-                    }
-
-                    contentItem: Text {
-                        text: parent.text
-                        color: highlighted ? "black" : "white"
-                        font.pixelSize: 30
-                        verticalAlignment: Text.AlignVCenter
-                        anchors.fill: parent
-                        // leftPadding: 20
-                    }
-                }
-
-                popup: Popup {
-                    y: modelComboBox.height
-                    width: modelComboBox.width
-                    implicitHeight: contentItem.implicitHeight
-
-                    background: Rectangle {
-                        color: "#303030"
-                        radius: 8
-                        border.color: "#4A90E2"
-                        border.width: 2
-                    }
-
-                    contentItem: ListView {
-                        clip: true
-                        implicitHeight: contentHeight
-                        model: modelComboBox.popup.visible ? modelComboBox.delegateModel : null
-                        currentIndex: modelComboBox.highlightedIndex
-                    }
-                }
+            Text {
+                text: "Select Model:"
+                color: "white"
+                font.pixelSize: 30   // slightly smaller than combo text
             }
 
-            CardButton {
-                id: browseCard
-                text: "Browse..."
-                // width: 200
-                // height: 120
-                onClicked: {
-                    folderDialog.open()
+            Row {
+                spacing: 20
+
+                CustomComboBox {
+                    id: modelComboBox
+                    width: 800
+                    height: 120
+                    textSize: 30
+                    model: dirTransfer.localRepoEntryList
+                }
+
+                CardButton {
+                    id: browseCard
+                    text: "Browse..."
+                    onClicked: {
+                        folderDialog.open()
+                    }
                 }
             }
         }
@@ -117,6 +71,24 @@ Item {
                 borderColor: "#7ED321"
                 onClicked: {
                     console.log("Upload clicked")
+                    dirTransfer.setDirToCopy(modelComboBox.currentIndex)
+
+                    if (!dirTransfer.selectedDirIsValid()) {
+                        invalidModelDialog.open()
+                        return
+                    }
+
+                    if (dirTransfer.remoteCopyExists()) {
+                        overwriteRemoteDecisionDialog.open()
+                        return
+                    }
+
+                    if(dirTransfer.transferToRemote()) {
+                        uploadSuccessDialog.open()
+                    }
+                    else {
+                        copyFailedDialog.open()
+                    }
                 }
             }
 
@@ -131,14 +103,105 @@ Item {
         }
     }
 
-    FileDialog {
+    // Popup Dialog Windows
+    QtDialogs.FileDialog {
         id: folderDialog
         title: "Select Model Folder"
         folder: shortcuts.home
         selectFolder: true
+        selectMultiple: false
+        onAccepted: {
+            var path = folder.toString().replace("file:///", "")
+            dirTransfer.setDirToCopy(path)
+
+            if (!dirTransfer.selectedDirIsValid()) {
+                invalidModelDialog.open()
+                return
+            }
+
+            if (dirTransfer.localRepoCopyExists()) {
+                overwriteLocalDecisionDialog.open()
+                return
+            }
+
+            if(!dirTransfer.copyToLocalRepo(false)) {
+                copyFailedDialog.open()
+            }
+        }
+    }
+
+    CustomDialog {
+        id: uploadSuccessDialog
+        parent: uploadModelPage
+        titleText: "Info"
+        messageText: "Model uploaded successfully."
+        confirmText: "OK"
+        showCancel: false
+        accentColor: "white"
+    }
+
+    CustomDialog {
+        id: copyFailedDialog
+        parent: uploadModelPage
+        titleText: "Copy Failed"
+        messageText: "Copy Failed"
+        confirmText: "OK"
+        showCancel: false
+        accentColor: "#E74C3C"
+    }
+
+    CustomDialog {
+        id: invalidModelDialog
+        parent: uploadModelPage
+        titleText: "Invalid Model"
+        messageText: "Selected folder must contain a model file (.onnx/.pt) and labels.txt."
+        confirmText: "OK"
+        showCancel: false
+        accentColor: "#E74C3C"
+    }
+
+    CustomDialog {
+        id: overwriteLocalDecisionDialog
+        parent: uploadModelPage
+        titleText: "Overwrite?"
+        messageText: "A model with the same name already exists in the local repo. Overwrite it?"
+        confirmText: "Yes"
+        cancelText: "No"
+        showCancel: true
+        accentColor: "white"
 
         onAccepted: {
-            console.log("Selected folder:", folderDialog.folder)
+            if(!dirTransfer.copyToLocalRepo(true)) {
+                copyFailedDialog.open()
+            }
+        }
+
+        onRejected: {
+            console.log("Local overwrite cancelled")
+        }
+    }
+
+    CustomDialog {
+        id: overwriteRemoteDecisionDialog
+        parent: uploadModelPage
+        titleText: "Overwrite?"
+        messageText: "A model with the same name already exists in the remote repo. Overwrite it?"
+        confirmText: "Yes"
+        cancelText: "No"
+        showCancel: true
+        accentColor: "white"
+
+        onAccepted: {
+            if(dirTransfer.transferToRemote(true)) {
+                uploadSuccessDialog.open()
+            }
+            else {
+                copyFailedDialog.open()
+            }
+        }
+
+        onRejected: {
+            console.log("Remote overwrite cancelled")
         }
     }
 }
