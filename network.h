@@ -9,6 +9,7 @@
 #include <QNetworkInterface>
 #include <QRemoteObjectNode>
 #include <QSharedPointer>
+#include <QProcess>
 #include "rep_remotenetwork_replica.h"
 
 #define TCP_PORT                65214
@@ -43,10 +44,12 @@ public slots:
 private slots:
     void onHeartbeatTimer();
     void connectCheck();
+    void onConnectionChanged(bool connected);
 
 private:
     bool discoverAddresses(int timeoutMsec);
     QRemoteObjectNode* initializeRemoteObjects();
+    void connectModelsShare();
 
     QHostAddress m_desktopIp;
     QHostAddress m_jetsonIp;

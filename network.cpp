@@ -6,6 +6,7 @@ Network::Network(QObject *parent)
     m_remoteObjectNode = new QRemoteObjectNode(this);
     connect(&m_heartbeatTimer, &QTimer::timeout, this, &Network::onHeartbeatTimer);
     connect(&m_heartbeatTimer, &QTimer::timeout, this, &Network::connectCheck);
+    connect(this, &Network::connectionChanged, this, &Network::onConnectionChanged);
 }
 
 Network::~Network()
@@ -62,6 +63,13 @@ void Network::connectCheck()
         emit connectionChanged(m_connection);
         qDebug() << "Network: Jetson heartbeat failed";
     }
+}
+
+void Network::onConnectionChanged(bool connected)
+{
+    if(connected)
+        connectModelsShare();
+
 }
 
 bool Network::discoverAddresses(int timeoutMsec)
@@ -167,6 +175,53 @@ QRemoteObjectNode *Network::initializeRemoteObjects()
     m_heartbeatTimer.start(DESKTOP_HEARBEAT_MSEC);
 
     return m_remoteObjectNode;
+}
+
+void Network::connectModelsShare()
+{
+    if (m_jetsonIp.isNull())
+    {
+        qWarning() << "Network: Cannot connect models share, Jetson IP is null";
+        return;
+    }
+
+    QString sharePath = "\\\\" + m_jetsonIp.toString() + "\\models";
+
+    QProcess proc;
+    QStringList args;
+    args << "use"
+         << sharePath
+         << "/user:artemis"
+         << "zxc"
+         << "/persistent:no";
+
+    proc.start("net", args);
+
+    if (!proc.waitForStarted(3000))
+    {
+        qWarning() << "Network: Failed to start net use process";
+        return;
+    }
+
+    if (!proc.waitForFinished(5000))
+    {
+        proc.kill();
+        qWarning() << "Network: net use process timed out";
+        return;
+    }
+
+    QString stdOut = proc.readAllStandardOutput();
+    QString stdErr = proc.readAllStandardError();
+
+    if (proc.exitStatus() != QProcess::NormalExit || proc.exitCode() != 0)
+    {
+        qWarning() << "Network: Failed to connect models share";
+        qWarning() << "stdout:" << stdOut;
+        qWarning() << "stderr:" << stdErr;
+        return;
+    }
+
+    qDebug() << "Network: Connected to models share at" << sharePath;
 }
 
 bool Network::connection() const
