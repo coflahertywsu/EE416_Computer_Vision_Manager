@@ -19,17 +19,17 @@ class DirTransfer : public QObject
 
 public:
     explicit DirTransfer(Network *network, QObject *parent = nullptr);
-    Q_INVOKABLE void setDirToCopy(const QDir &dir);
+    Q_INVOKABLE void setDirToCopy(const QString &dirPath);
+    Q_INVOKABLE void setDirToCopy(int localRepoIdx);
     Q_INVOKABLE void setLocalRepoWatcher(bool enable);
     Q_INVOKABLE bool selectedDirIsValid() const;                //checks for model file and labels.txt file within selected dir
     Q_INVOKABLE bool remoteCopyExists() const;
-    Q_INVOKABLE bool localCopyExists() const;                   //doesn't make sense when selected dir is in local repo
+    Q_INVOKABLE bool localRepoCopyExists() const;                   //doesn't make sense when selected dir is in local repo
     Q_INVOKABLE bool transferToRemote(bool overwrite = false);  //selected dir goes to Jetson
-    Q_INVOKABLE bool copyToLocal(bool overwrite = false);       //Selected dir goes to local repo, doesn't make sense when selected dir is in local repo
+    Q_INVOKABLE bool copyToLocalRepo(bool overwrite = false);       //Selected dir goes to local repo, doesn't make sense when selected dir is in local repo
     QStringList localRepoEntryList() const;
 
 signals:
-
     void localRepoEntryListChanged();
 
 private slots:

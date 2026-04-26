@@ -9,10 +9,29 @@ DirTransfer::DirTransfer(Network *network,QObject *parent)
     connect(&m_fileSystemWatcher, &QFileSystemWatcher::directoryChanged, this, &DirTransfer::onLocalRepoChanged);
 }
 
-void DirTransfer::setDirToCopy(const QDir &dir)
+void DirTransfer::setDirToCopy(const QString &dirPath)
 {
-    m_selectedDir = dir;
-    m_remoteDir = QDir("//" + m_network->jetsonIp() + "/" + REMOTE_REPO + "/"  + dir.dirName());
+    m_selectedDir.setPath(dirPath);
+    m_remoteDir = QDir("//" + m_network->jetsonIp() + "/" + REMOTE_REPO + "/" + m_selectedDir.dirName());
+}
+
+void DirTransfer::setDirToCopy(int localRepoIdx)
+{
+    int size = m_localRepoEntryList.size();
+
+    if (size == 0 || localRepoIdx < 0 || localRepoIdx >= size)
+    {
+        qWarning() << "DirTransfer: Unable to set dir to copy, index is out of bounds";
+        return;
+    }
+
+    QString dirName = m_localRepoEntryList.at(localRepoIdx);
+
+    m_selectedDir.setPath(m_localRepo.filePath(dirName));
+
+    m_remoteDir.setPath("//" + m_network->jetsonIp() + "/" + REMOTE_REPO + "/"  + dirName);
+
+    qDebug() << "DirTransfer: dirToCopy = " << m_selectedDir.path();
 }
 
 void DirTransfer::setLocalRepoWatcher(bool enable)
@@ -59,7 +78,7 @@ bool DirTransfer::remoteCopyExists() const
     return m_remoteDir.exists();
 }
 
-bool DirTransfer::localCopyExists() const
+bool DirTransfer::localRepoCopyExists() const
 {
     QString selectedDirName = QFileInfo(m_selectedDir.path()).fileName();
 
@@ -71,7 +90,7 @@ bool DirTransfer::transferToRemote(bool overwrite)
     return transferDir(m_remoteDir, overwrite);
 }
 
-bool DirTransfer::copyToLocal(bool overwrite)
+bool DirTransfer::copyToLocalRepo(bool overwrite)
 {
     QDir dstDir(m_localRepo.filePath(m_selectedDir.dirName()));
 
@@ -95,6 +114,8 @@ void DirTransfer::onLocalRepoChanged()
 
 bool DirTransfer::transferDir(QDir dst, bool overwrite)
 {
+    qDebug() << "DirTransfer: Attempting to transfer to " << dst.path();
+
     if(dst.exists())
     {
         if(!overwrite)
