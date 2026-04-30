@@ -1,0 +1,14 @@
+class RemoteCvModel
+{
+    PROP(QStringList cvModelNames READONLY)
+    PROP(bool hasTrtEngine READONLY)
+
+    SIGNAL(engineBuildResult(bool success))
+
+    SLOT(QString selectedModelName())
+    SLOT(QString modelNameAt(int index))
+    SLOT(void setSelectedModel(int index))
+    SLOT(void setSelectedModel(QString modelName))
+    SLOT(bool buildTrtEngine(bool overwrite))
+    SLOT(void loadModelNames())
+}
