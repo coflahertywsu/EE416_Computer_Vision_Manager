@@ -33,11 +33,13 @@ set(PROJECT_SOURCES
         remotepipeline.rep
         remotevehicle.rep
         remotenetwork.rep
+        remotecvmodel.rep
 )
 
 qt5_generate_repc(PROJECT_SOURCES remotepipeline.rep REPLICA)
 qt5_generate_repc(PROJECT_SOURCES remotevehicle.rep REPLICA)
 qt5_generate_repc(PROJECT_SOURCES remotenetwork.rep REPLICA)
+qt5_generate_repc(PROJECT_SOURCES remotecvmodel.rep REPLICA)
 
 link_directories(${GSTREAMER_LIBRARY_DIRS})
 
@@ -54,12 +56,15 @@ add_executable(ComputerVisionManager
     gamepadhandler.h gamepadhandler.cpp
     controlworker.h controlworker.cpp
     network.h network.cpp
-
+    dirtransfer.h dirtransfer.cpp
+    instruction.h instruction.cpp
+    cvmodelconfig.h cvmodelconfig.cpp
+    userprogram.h userprogram.cpp
+    # settings.h settings.cpp
     remotepipeline.rep
     remotevehicle.rep
     remotenetwork.rep
-
-    dirtransfer.h dirtransfer.cpp
+    remotecvmodel.rep
 )
 
 
