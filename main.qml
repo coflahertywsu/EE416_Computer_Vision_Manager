@@ -4,8 +4,7 @@ import QtQuick.Window 2.1
 Window {
     id: mainWindow
     visible: true
-    width: 1280
-    height: 720
+    visibility: Window.Maximized
     color: "#303030"
 
     Loader {
