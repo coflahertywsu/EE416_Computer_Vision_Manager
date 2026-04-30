@@ -3,7 +3,11 @@
         <file>main.qml</file>
         <file>LiveViewerPage.qml</file>
         <file>HomePage.qml</file>
-        <file>UploadModelPage.qml</file>
+        <file>SystemSettingsPage.qml</file>
         <file>CardButton.qml</file>
+        <file>CustomDialog.qml</file>
+        <file>RemoteProgrammingPage.qml</file>
+        <file>CustomComboBox.qml</file>
+        <file>CustomRadioButton.qml</file>
     </qresource>
 </RCC>
