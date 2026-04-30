@@ -3,7 +3,7 @@ import QtQuick.Controls 2.12
 import QtQuick.Dialogs 1.3 as QtDialogs
 
 Item {
-    id: uploadModelPage
+    id: systemSettingsPage
 
     property var pageLoader
 
@@ -18,7 +18,7 @@ Item {
 
     // Title
     Text {
-        text: "Upload New Model"
+        text: "System Settings"
         anchors.top: parent.top
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.topMargin: 20
@@ -27,51 +27,114 @@ Item {
         color: "white"
     }
 
-    // Controls (Buttons and Combobox)
+    // Section Parent Level
     Column {
         spacing: 40
         anchors.centerIn: parent
 
+        //Connection Mode Section
         Column {
-            spacing: 10
+            spacing: 20
 
             Text {
-                text: "Select Model:"
+                text: "Connection Mode"
                 color: "white"
-                font.pixelSize: 30   // slightly smaller than combo text
+                font.pixelSize: 30
+                font.bold: true
             }
 
             Row {
-                spacing: 20
+                spacing: 80
+                anchors.horizontalCenter: parent.horizontalCenter
 
-                CustomComboBox {
-                    id: modelComboBox
-                    width: 800
-                    height: 120
-                    textSize: 30
-                    model: dirTransfer.localRepoEntryList
+                ButtonGroup {
+                    id: connectionModeGroup
                 }
 
-                CardButton {
-                    id: browseCard
-                    text: "Browse..."
-                    onClicked: {
-                        folderDialog.open()
+                CustomRadioButton {
+                    id: autoRadio
+                    text: "Automatic"
+                    height: 75
+                    textSize: 26
+                    checked: true
+                    ButtonGroup.group: connectionModeGroup
+                }
+
+                CustomRadioButton {
+                    id: manualRadio
+                    text: "Manual"
+                    height: 75
+                    textSize: 26
+                    ButtonGroup.group: connectionModeGroup
+                }
+
+                TextField {
+                    id: jetsonIpField
+                    opacity: manualRadio.checked
+                    enabled: manualRadio.checked
+                    width: 650
+                    height: 75
+                    font.pixelSize: 26
+                    color: "white"
+                    placeholderText: "Remote Device IP Address (e.g. 192.168.1.1)"
+
+                    background: Rectangle {
+                        radius: 10
+                        color: "#404040"
+                        border.color: "#4A90E2"
+                        border.width: 2
                     }
                 }
             }
         }
 
-        Row {
-            spacing: 40
-            anchors.horizontalCenter: parent.horizontalCenter
+        // Local Repo Section
+        Column {
+            spacing: 20
+
+            Text {
+                text: "Local Model Repository"
+                color: "white"
+                font.pixelSize: 30
+                font.bold: true
+            }
+
+            Column {
+                spacing: 10
+
+                Text {
+                    text: "Models:"
+                    color: "white"
+                    font.pixelSize: 26
+                }
+
+                Row {
+                    spacing: 20
+
+                    CustomComboBox {
+                        id: localModelComboBox
+                        width: 650
+                        height: 75
+                        textSize: 26
+                        model: dirTransfer.localRepoEntryList
+                    }
+
+                    CardButton {
+                        id: browseCard
+                        text: "Browse..."
+                        onClicked: {
+                            folderDialog.open()
+                        }
+                    }
+                }
+            }
 
             CardButton {
-                text: "Upload"
-                borderColor: "#7ED321"
+                id: transferToRemoteCard
+                text: "Transfer to Remote"
+                width: 300
                 onClicked: {
-                    console.log("Upload clicked")
-                    dirTransfer.setDirToCopy(modelComboBox.currentIndex)
+                    dirTransfer.setDirToCopy(localModelComboBox.currentIndex)
 
                     if (!dirTransfer.selectedDirIsValid()) {
                         invalidModelDialog.open()
@@ -84,26 +147,84 @@ Item {
                     }
 
                     if(dirTransfer.transferToRemote()) {
-                        uploadSuccessDialog.open()
+                        remoteCvModel.loadModelNames()
+                        transferSuccessDialog.open()
                     }
                     else {
                         copyFailedDialog.open()
                     }
                 }
             }
+        }
 
-            CardButton {
-                text: "Back"
-                borderColor: "#7ED321"
-                onClicked: {
-                    dirTransfer.setLocalRepoWatcher(false)
-                    pageLoader.source = "HomePage.qml"
+        // Remote Repo Section
+        Column {
+            spacing: 20
+
+            Text {
+                text: "Remote Model Repository"
+                color: "white"
+                font.pixelSize: 30
+                font.bold: true
+            }
+
+            Column {
+                spacing: 10
+
+                Text {
+                    text: "Models:"
+                    color: "white"
+                    font.pixelSize: 26
+                }
+
+                Row {
+                    spacing: 20
+
+                    CustomComboBox {
+                        id: remoteModelComboBox
+                        width: 650
+                        height: 75
+                        textSize: 26
+                        model: remoteCvModel.cvModelNames
+                        onCurrentIndexChanged: {
+                            remoteCvModel.setSelectedModel(remoteModelComboBox.currentIndex)
+                        }
+                    }
+
+                    CardButton {
+                        id: buildCard
+                        text: remoteCvModel.hasTrtEngine ? "Rebuild..." : "Build..."
+                        onClicked: {
+                            buildEngineDecisionDialog.open()
+                        }
+                    }
+                }
+
+                Text {
+                    text: "Selected model requires TRT engine. Click 'Build' to build engine."
+                    visible: !remoteCvModel.hasTrtEngine
+                    color: "red"
+                    font.pixelSize: 22
                 }
             }
         }
+
+        CardButton {
+            text: "Back"
+            borderColor: "#7ED321"
+            onClicked: {
+                dirTransfer.setLocalRepoWatcher(false)
+                pageLoader.source = "HomePage.qml"
+            }
+        }
+
     }
 
-    // Popup Dialog Windows
+
+    ///---------------------------------------------
+    /// Dialog Boxes
+    ///---------------------------------------------
+
     QtDialogs.FileDialog {
         id: folderDialog
         title: "Select Model Folder"
@@ -130,19 +251,39 @@ Item {
         }
     }
 
+
+    // Dialogs associated with local repo section
     CustomDialog {
-        id: uploadSuccessDialog
-        parent: uploadModelPage
+        id: transferSuccessDialog
+        parent: systemSettingsPage
         titleText: "Info"
-        messageText: "Model uploaded successfully."
-        confirmText: "OK"
-        showCancel: false
+        messageText: "Model transfered successfully. The TensorRT engine will need to be built before the model can be used. This can take several minutes. Build it?"
+        confirmText: "Yes"
+        cancelText: "No"
+        showCancel: true
         accentColor: "white"
+        // Note the plumbing here. It's a little indirect, but saves a bunch of code/work.
+            // 1. Setting the index of remoteModelComboBox triggers onIndexChaned slot
+            // 2. The onIndexChangedSlot sets the selected model of remoteCvModel
+        onAccepted: {
+            var modelName = localModelComboBox.currentText
+            var remoteComboIdx = remoteModelComboBox.model.indexOf(modelName)
+
+            if(remoteComboIdx === -1) {
+                buildEngineFailedDialog.open()
+                return
+            }
+
+            remoteModelComboBox.currentIndex = remoteComboIdx
+            buildEngineProgressDialog.open()
+            remoteCvModel.buildTrtEngine(false)
+        }
     }
+
 
     CustomDialog {
         id: copyFailedDialog
-        parent: uploadModelPage
+        parent: systemSettingsPage
         titleText: "Copy Failed"
         messageText: "Copy Failed"
         confirmText: "OK"
@@ -152,9 +293,9 @@ Item {
 
     CustomDialog {
         id: invalidModelDialog
-        parent: uploadModelPage
+        parent: systemSettingsPage
         titleText: "Invalid Model"
-        messageText: "Selected folder must contain a model file (.onnx/.pt) and labels.txt."
+        messageText: "Selected folder must contain a model file (.onnx) and labels.txt."
         confirmText: "OK"
         showCancel: false
         accentColor: "#E74C3C"
@@ -162,7 +303,7 @@ Item {
 
     CustomDialog {
         id: overwriteLocalDecisionDialog
-        parent: uploadModelPage
+        parent: systemSettingsPage
         titleText: "Overwrite?"
         messageText: "A model with the same name already exists in the local repo. Overwrite it?"
         confirmText: "Yes"
@@ -183,7 +324,7 @@ Item {
 
     CustomDialog {
         id: overwriteRemoteDecisionDialog
-        parent: uploadModelPage
+        parent: systemSettingsPage
         titleText: "Overwrite?"
         messageText: "A model with the same name already exists in the remote repo. Overwrite it?"
         confirmText: "Yes"
@@ -193,7 +334,7 @@ Item {
 
         onAccepted: {
             if(dirTransfer.transferToRemote(true)) {
-                uploadSuccessDialog.open()
+                transferSuccessDialog.open()
             }
             else {
                 copyFailedDialog.open()
@@ -203,5 +344,69 @@ Item {
         onRejected: {
             console.log("Remote overwrite cancelled")
         }
+    }
+
+
+    //Dialogs associated with remote repo
+    CustomDialog {
+        id: buildEngineDecisionDialog
+        parent: systemSettingsPage
+        titleText: remoteCvModel.hasTrtEngine ? "Rebuild Engine?" : "Build Engine?"
+        messageText: remoteCvModel.hasTrtEngine
+                     ? "This model already has a TensorRT engine. Rebuilding can take several minutes. Rebuild it?"
+                     : "Building the TensorRT engine can take several minutes. Build it now?"
+        confirmText: remoteCvModel.hasTrtEngine ? "Rebuild" : "Build"
+        cancelText: "Cancel"
+        showCancel: true
+        accentColor: "white"
+
+        onAccepted: {
+            buildEngineProgressDialog.open()
+            remoteCvModel.buildTrtEngine(remoteCvModel.hasTrtEngine)
+        }
+    }
+
+    Connections {
+        target: remoteCvModel
+
+        function onEngineBuildResult(success) {
+            buildEngineProgressDialog.close()
+
+            if(success)
+                buildEngineSuccessDialog.open()
+            else
+                buildEngineFailedDialog.open()
+        }
+    }
+
+    CustomDialog {
+        id: buildEngineProgressDialog
+        parent: systemSettingsPage
+        titleText: "Building Engine"
+        messageText: "TensorRT engine is being built. This may take a several minutes. Do not close software or turn off remote device."
+        confirmText: ""
+        showConfirm: false
+        showCancel: false
+        accentColor: "white"
+    }
+
+    CustomDialog {
+        id: buildEngineSuccessDialog
+        parent: systemSettingsPage
+        titleText: "Build Complete"
+        messageText: "TensorRT engine was built successfully."
+        confirmText: "OK"
+        showCancel: false
+        accentColor: "white"
+    }
+
+    CustomDialog {
+        id: buildEngineFailedDialog
+        parent: systemSettingsPage
+        titleText: "Build Failed"
+        messageText: "TensorRT engine build failed."
+        confirmText: "OK"
+        showCancel: false
+        accentColor: "red"
     }
 }

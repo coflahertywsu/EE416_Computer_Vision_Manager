@@ -20,7 +20,7 @@ Item {
         anchors.top: parent.top
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.topMargin: 20
-        font.pixelSize: 42
+        font.pixelSize: 50
         font.bold: true
         color: "white"
     }
@@ -31,7 +31,7 @@ Item {
         anchors.top: parent.top
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.topMargin: 90
-        font.pixelSize: 18
+        font.pixelSize: 30
         color: "#bbbbbb"
     }
 
@@ -45,6 +45,7 @@ Item {
             text: "Live Viewer"
             width: 850
             height: 150
+            fontSize: 32
             border.color: "#4A90E2"
             onClicked: {
                 pageLoader.source = "LiveViewerPage.qml"
@@ -52,25 +53,27 @@ Item {
         }
 
         CardButton {
-            id: remoteConfigCard
-            text: "Remote Vision System Configuration"
+            id: remoteProgrammingCard
+            text: "Remote Vision System Programming"
             width: 850
             height: 150
+            fontSize: 32
             border.color: "#F5A623"
             onClicked: {
-                //pageLoader.source = "RemoteVisionConfigPage.qml"
+                pageLoader.source = "RemoteProgrammingPage.qml"
             }
         }
 
         CardButton {
-            id: uploadModelCard
-            text: "Upload New Model"
+            id: systemSettingsCard
+            text: "System Settings"
             width: 850
             height: 150
+            fontSize: 32
             border.color: "#7ED321"
             onClicked: {
                 dirTransfer.setLocalRepoWatcher(true)
-                pageLoader.source = "UploadModelPage.qml"
+                pageLoader.source = "SystemSettingsPage.qml"
             }
         }
     }
