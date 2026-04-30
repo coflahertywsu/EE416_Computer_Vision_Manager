@@ -18,6 +18,31 @@ ComboBox {
     height: 120
     padding: 20
 
+    indicator: Canvas {
+        id: canvas
+        width: 20
+        height: 20
+        anchors.right: parent.right
+        anchors.rightMargin: 20
+        anchors.verticalCenter: parent.verticalCenter
+
+        Component.onCompleted: requestPaint()
+
+        onPaint: {
+            var ctx = getContext("2d")
+            ctx.reset()
+
+            ctx.fillStyle = "white"   // ← THIS is your arrow color
+
+            ctx.beginPath()
+            ctx.moveTo(0, 6)
+            ctx.lineTo(width, 6)
+            ctx.lineTo(width / 2, height)
+            ctx.closePath()
+            ctx.fill()
+        }
+    }
+
     background: Rectangle {
         radius: root.cornerRadius
         color: root.boxColor
@@ -64,7 +89,7 @@ ComboBox {
 
         contentItem: ListView {
             clip: true
-            implicitHeight: contentHeight
+            implicitHeight: contentHeight + 20
             model: root.popup.visible ? root.delegateModel : null
             currentIndex: root.highlightedIndex
         }

@@ -8,6 +8,7 @@ Popup {
     property string messageText: ""
     property string confirmText: "OK"
     property string cancelText: "Cancel"
+    property bool showConfirm: true
     property bool showCancel: false
     property color accentColor: "white"
 
@@ -73,12 +74,14 @@ Popup {
         anchors.bottom: parent.bottom
         border.color: root.accentColor
         color: "#303030"
+        visible: root.showConfirm || root.showCancel
 
         Row {
             anchors.centerIn: parent
             spacing: 20
 
             CardButton {
+                visible: root.showConfirm
                 width: 180
                 height: 70
                 radius: 14

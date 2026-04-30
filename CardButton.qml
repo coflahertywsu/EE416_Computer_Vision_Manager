@@ -8,14 +8,14 @@ Rectangle {
     property color hoverColor: "#505050"
     property color pressedColor: "#4a4a4a"
     property color borderColor: "#4A90E2"
-    property int fontSize: 32
+    property int fontSize: 26
     property bool enabled: true
 
     signal clicked()
 
-    width: 250
-    height: 120
-    radius: 20
+    width: 150
+    height: 75
+    radius: 15
     color: enabled ? baseColor : "#2f2f2f"
     border.color: borderColor
     border.width: 2
